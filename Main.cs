@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace WinFormsApp1
 {
@@ -146,9 +146,12 @@ namespace WinFormsApp1
                 (['Z'],["7895123"]),
                 (['.'],["5"]),
                 (['-'],["456","654"]),
+                (['卐'],["985217463"])
             ];
         private readonly Node[] _nodes;
         private string _input = string.Empty;
+        private bool _enterHeld = false;
+        private bool _dashHeld = false;
         private CancellationTokenSource? _alertCts = null;
         public Main()
         {
@@ -195,16 +198,19 @@ namespace WinFormsApp1
             }
             return [.. actives];
         }
+        private Font GetRelativeFont(float percent,FontStyle style)
+        {
+            int baseSize = Math.Min(this.Height, this.Width) / 25;
+            percent = Math.Max(percent,1) / 100;
+            float finalSize = Math.Max(8f,baseSize * percent);
+            return new Font(Font.SystemFontName,finalSize,style);
+        }
         private void SetInputAndInvalidateCanvas(string input)
         {
             _input = input ?? string.Empty;
             tableLayoutPanelMain.Invalidate(GetCellBounds(tableLayoutPanelMain, 0, 1));
         }
-        private void DrawPath()
-        {
-
-        }
-        private void Render()
+        private void RenderChar()
         {
             char? selected = null;
             foreach (var (CHARS, PATHS) in Paths)
@@ -237,25 +243,24 @@ namespace WinFormsApp1
             }
             else
             {
-                _ = Alert($"No matching character found.", Color.Red);
+                _ = Alert($"No matching character found.", Color.DarkRed);
             }
         }
 
-        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+        private async void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
             char c = e.KeyChar;
-            if (c == '-' && textBoxOutput.Text.Length > 0)
+            if (c == '-' && textBoxOutput.Text.Length > 0 && _dashHeld)
             {
                 _ = Alert($"Last character removed.", Color.DarkGoldenrod);
                 textBoxOutput.Text = textBoxOutput.Text[..^1];
             }
-            else if (c == '\r')
+            else if (c == '\r' && _enterHeld)
             {
                 if (_input.Length > 0)
                 {
-                    Render();
+                    RenderChar();
                     SetInputAndInvalidateCanvas(string.Empty);
-                    DrawPath();
                 }
                 else if (string.IsNullOrEmpty(textBoxOutput.Text) == false)
                 {
@@ -267,15 +272,45 @@ namespace WinFormsApp1
             {
                 _ = Alert($"Last input cleared.", Color.Blue);
                 SetInputAndInvalidateCanvas(_input[..^1]);
-                DrawPath();
             }
             else if (char.IsNumber(c) && _input.Contains(c) == false && c != '0')
             {
                 SetInputAndInvalidateCanvas(_input + c);
-                DrawPath();
             }
         }
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (_enterHeld)
+                {
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+                _enterHeld = true;
+            }
+            else if(e.KeyCode == Keys.Subtract)
+            {
+                if(_dashHeld)
+                {
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+                _dashHeld = true;
+            }
+        }
+        private void MainForm_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                _enterHeld = false;
+            }
+            if (e.KeyCode == Keys.Subtract)
+            {
+                _dashHeld = false;
+            }
+        }
+        private void textBoxOutput_TextChanged(object sender, EventArgs e)
         {
             try
             {
@@ -307,7 +342,7 @@ namespace WinFormsApp1
         {
             UpdateNodeRectangles();
             var activeNodes = GetActiveNodesInOrder();
-            List<Rectangle> shrinkedAndCenteredSquares = []; 
+            List<Rectangle> shrinkedAndCenteredSquares = [];
             foreach (Node node in _nodes)
             {
                 Color color = activeNodes.Contains(node) ? Color.Green : Color.LightGray;
@@ -322,15 +357,22 @@ namespace WinFormsApp1
             var centers = activeNodes.Select(node => GetCenterPoint(node.Rectangle)).ToArray();
             if (_input != null && _input.Length > 1)
             {
-                using(var p = new Pen(Color.Green,5))
-                {
 
-                    e.Graphics.DrawLines(p,centers);
+                for (int i = 0; i < activeNodes.Length - 1; i++)
+                {
+                    Random rnd = new Random();
+                    Color cl = Color.FromArgb(255, rnd.Next(255), rnd.Next(255), rnd.Next(255));
+                    using (var p = new Pen(cl, shrinkedAndCenteredSquares[0].Height / 7))
+                    {
+                        var active = activeNodes[i];
+                        e.Graphics.DrawLine(p, GetCenterPoint(active.Rectangle), GetCenterPoint(activeNodes[i + 1].Rectangle));
+                    }
                 }
             }
             using (var b = new SolidBrush(Color.Black))
             {
                 int count = 1;
+                var nodeFont = GetRelativeFont(100, FontStyle.Bold);
                 foreach (var point in shrinkedAndCenteredSquares)
                 {
                     StringFormat format = new StringFormat()
@@ -338,9 +380,10 @@ namespace WinFormsApp1
                         Alignment = StringAlignment.Center,
                         LineAlignment = StringAlignment.Center,
                     };
-                    
-                    e.Graphics.DrawString(count++.ToString(), new Font("B Titr", 20), b, point,format);
+                    e.Graphics.DrawString(count++.ToString(), nodeFont, b, point, format);
                 }
+                textBoxOutput.Font = GetRelativeFont(125, FontStyle.Regular);
+                labelAlert.Font = GetRelativeFont(80, FontStyle.Italic);
             }
         }
     }

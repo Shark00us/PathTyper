@@ -28,74 +28,76 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanelMain = new TableLayoutPanel();
-            this.textBoxOutput = new TextBox();
-            this.labelAlert = new Label();
-            this.tableLayoutPanelMain.SuspendLayout();
-            this.SuspendLayout();
+            tableLayoutPanelMain = new TableLayoutPanel();
+            textBoxOutput = new TextBox();
+            labelAlert = new Label();
+            tableLayoutPanelMain.SuspendLayout();
+            SuspendLayout();
             // 
             // tableLayoutPanelMain
             // 
-            this.tableLayoutPanelMain.BackColor = Color.Transparent;
-            this.tableLayoutPanelMain.ColumnCount = 1;
-            this.tableLayoutPanelMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            this.tableLayoutPanelMain.Controls.Add(this.textBoxOutput, 0, 0);
-            this.tableLayoutPanelMain.Controls.Add(this.labelAlert, 0, 2);
-            this.tableLayoutPanelMain.Dock = DockStyle.Fill;
-            this.tableLayoutPanelMain.Location = new Point(10, 10);
-            this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
-            this.tableLayoutPanelMain.RowCount = 3;
-            this.tableLayoutPanelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            this.tableLayoutPanelMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.tableLayoutPanelMain.RowStyles.Add(new RowStyle());
-            this.tableLayoutPanelMain.Size = new Size(564, 541);
-            this.tableLayoutPanelMain.TabIndex = 0;
-            this.tableLayoutPanelMain.Paint += this.tableLayoutPanel1_Paint;
+            tableLayoutPanelMain.BackColor = Color.Transparent;
+            tableLayoutPanelMain.ColumnCount = 1;
+            tableLayoutPanelMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanelMain.Controls.Add(textBoxOutput, 0, 0);
+            tableLayoutPanelMain.Controls.Add(labelAlert, 0, 2);
+            tableLayoutPanelMain.Dock = DockStyle.Fill;
+            tableLayoutPanelMain.Location = new Point(10, 10);
+            tableLayoutPanelMain.Name = "tableLayoutPanelMain";
+            tableLayoutPanelMain.RowCount = 3;
+            tableLayoutPanelMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanelMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanelMain.RowStyles.Add(new RowStyle());
+            tableLayoutPanelMain.Size = new Size(564, 541);
+            tableLayoutPanelMain.TabIndex = 0;
+            tableLayoutPanelMain.Paint += tableLayoutPanel1_Paint;
             // 
             // textBoxOutput
             // 
-            this.textBoxOutput.BorderStyle = BorderStyle.FixedSingle;
-            this.textBoxOutput.Dock = DockStyle.Fill;
-            this.textBoxOutput.Enabled = false;
-            this.textBoxOutput.Font = new Font("Segoe UI", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            this.textBoxOutput.Location = new Point(3, 3);
-            this.textBoxOutput.MaxLength = 999999;
-            this.textBoxOutput.Name = "textBoxOutput";
-            this.textBoxOutput.Size = new Size(558, 43);
-            this.textBoxOutput.TabIndex = 9;
-            this.textBoxOutput.TabStop = false;
-            this.textBoxOutput.TextAlign = HorizontalAlignment.Center;
-            this.textBoxOutput.TextChanged += this.textBox1_TextChanged;
+            textBoxOutput.BorderStyle = BorderStyle.FixedSingle;
+            textBoxOutput.Dock = DockStyle.Fill;
+            textBoxOutput.Enabled = false;
+            textBoxOutput.Font = new Font("Segoe UI", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            textBoxOutput.Location = new Point(3, 3);
+            textBoxOutput.MaxLength = 999999;
+            textBoxOutput.Name = "textBoxOutput";
+            textBoxOutput.Size = new Size(558, 43);
+            textBoxOutput.TabIndex = 9;
+            textBoxOutput.TabStop = false;
+            textBoxOutput.TextAlign = HorizontalAlignment.Center;
+            textBoxOutput.TextChanged += textBoxOutput_TextChanged;
             // 
             // labelAlert
             // 
-            this.labelAlert.AutoSize = true;
-            this.labelAlert.BorderStyle = BorderStyle.FixedSingle;
-            this.labelAlert.Dock = DockStyle.Fill;
-            this.labelAlert.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            this.labelAlert.ForeColor = SystemColors.Control;
-            this.labelAlert.Location = new Point(4, 505);
-            this.labelAlert.Margin = new Padding(4);
-            this.labelAlert.Name = "labelAlert";
-            this.labelAlert.Size = new Size(556, 32);
-            this.labelAlert.TabIndex = 10;
-            this.labelAlert.TextAlign = ContentAlignment.MiddleCenter;
-            this.labelAlert.Visible = false;
+            labelAlert.AutoSize = true;
+            labelAlert.BorderStyle = BorderStyle.FixedSingle;
+            labelAlert.Dock = DockStyle.Fill;
+            labelAlert.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            labelAlert.ForeColor = SystemColors.Control;
+            labelAlert.Location = new Point(4, 505);
+            labelAlert.Margin = new Padding(4);
+            labelAlert.Name = "labelAlert";
+            labelAlert.Size = new Size(556, 32);
+            labelAlert.TabIndex = 10;
+            labelAlert.TextAlign = ContentAlignment.MiddleCenter;
+            labelAlert.Visible = false;
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new SizeF(7F, 15F);
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(584, 561);
-            this.Controls.Add(this.tableLayoutPanelMain);
-            this.MinimumSize = new Size(200, 200);
-            this.Name = "Main";
-            this.Padding = new Padding(10);
-            this.Text = "Form1";
-            this.KeyPress += this.Form1_KeyPress;
-            this.tableLayoutPanelMain.ResumeLayout(false);
-            this.tableLayoutPanelMain.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(584, 561);
+            Controls.Add(tableLayoutPanelMain);
+            MinimumSize = new Size(200, 200);
+            Name = "Main";
+            Padding = new Padding(10);
+            Text = "Form1";
+            KeyDown += MainForm_KeyDown;
+            KeyPress += MainForm_KeyPress;
+            KeyUp += MainForm_KeyUp;
+            tableLayoutPanelMain.ResumeLayout(false);
+            tableLayoutPanelMain.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
