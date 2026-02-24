@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Drawing.Drawing2D;
+using System.Reflection;
 
 namespace WinFormsApp1
 {
@@ -338,8 +339,18 @@ namespace WinFormsApp1
                 catch (TaskCanceledException) { }
             }
         }
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        private PointF[] GetTriangle(Rectangle rct)
         {
+            return [new PointF(rct.X + rct.Width / 2, rct.Y), new PointF(rct.X, rct.Y + rct.Height), new PointF(rct.X + rct.Width, rct.Y + rct.Height)];
+        }
+        private void RotatePolygon()
+        {
+
+        }
+        private void tableLayoutPanelMain_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateNodeRectangles();
             var activeNodes = GetActiveNodesInOrder();
             List<Rectangle> shrinkedAndCenteredSquares = [];
@@ -351,10 +362,21 @@ namespace WinFormsApp1
                     Rectangle shrinked = ShrinkRectangle(node.Rectangle, 30);
                     Rectangle centerSquare = GetCenterSquare(shrinked);
                     shrinkedAndCenteredSquares.Add(centerSquare);
-                    e.Graphics.FillEllipse(b, GetCenterSquare(centerSquare));
+                    g.FillEllipse(b, centerSquare);
+                    using (Pen pos = new Pen(Color.Red))
+                    {
+                        g.DrawPolygon(pos, GetTriangle(centerSquare));
+                        using (Matrix m = new Matrix())
+                        {
+                            m.RotateAt(30f, new PointF(centerSquare.Left + (centerSquare.Width / 2),
+                                                      centerSquare.Top + (centerSquare.Height / 2)));
+                            g.Transform = m;
+                            g.DrawRectangle(Pens.Black, centerSquare);
+                            g.ResetTransform();
+                        }
+                    }
                 }
             }
-            var centers = activeNodes.Select(node => GetCenterPoint(node.Rectangle)).ToArray();
             if (_input != null && _input.Length > 1)
             {
 
@@ -365,10 +387,11 @@ namespace WinFormsApp1
                     using (var p = new Pen(cl, shrinkedAndCenteredSquares[0].Height / 7))
                     {
                         var active = activeNodes[i];
-                        e.Graphics.DrawLine(p, GetCenterPoint(active.Rectangle), GetCenterPoint(activeNodes[i + 1].Rectangle));
+                        g.DrawLine(p, GetCenterPoint(active.Rectangle), GetCenterPoint(activeNodes[i + 1].Rectangle));
                     }
                 }
             }
+            return;
             using (var b = new SolidBrush(Color.Black))
             {
                 int count = 1;
@@ -380,7 +403,7 @@ namespace WinFormsApp1
                         Alignment = StringAlignment.Center,
                         LineAlignment = StringAlignment.Center,
                     };
-                    e.Graphics.DrawString(count++.ToString(), nodeFont, b, point, format);
+                    g.DrawString(count++.ToString(), nodeFont, b, point, format);
                 }
                 textBoxOutput.Font = GetRelativeFont(125, FontStyle.Regular);
                 labelAlert.Font = GetRelativeFont(80, FontStyle.Italic);

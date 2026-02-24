@@ -50,7 +50,7 @@
             tableLayoutPanelMain.RowStyles.Add(new RowStyle());
             tableLayoutPanelMain.Size = new Size(564, 541);
             tableLayoutPanelMain.TabIndex = 0;
-            tableLayoutPanelMain.Paint += tableLayoutPanel1_Paint;
+            tableLayoutPanelMain.Paint += tableLayoutPanelMain_Paint;
             // 
             // textBoxOutput
             // 
