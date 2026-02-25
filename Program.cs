@@ -1,4 +1,4 @@
-namespace WinFormsApp1
+namespace PathTyper
 {
     internal static class Program
     {

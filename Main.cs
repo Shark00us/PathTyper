@@ -1,7 +1,7 @@
 ﻿using System.Drawing.Drawing2D;
 using System.Reflection;
 
-namespace WinFormsApp1
+namespace PathTyper
 {
     public struct Node(Rectangle rct, char c)
     {
@@ -199,12 +199,12 @@ namespace WinFormsApp1
             }
             return [.. actives];
         }
-        private Font GetRelativeFont(float percent,FontStyle style)
+        private Font GetRelativeFont(float percent, FontStyle style)
         {
             int baseSize = Math.Min(this.Height, this.Width) / 25;
-            percent = Math.Max(percent,1) / 100;
-            float finalSize = Math.Max(8f,baseSize * percent);
-            return new Font(Font.SystemFontName,finalSize,style);
+            percent = Math.Max(percent, 1) / 100;
+            float finalSize = Math.Max(8f, baseSize * percent);
+            return new Font(Font.SystemFontName, finalSize, style);
         }
         private void SetInputAndInvalidateCanvas(string input)
         {
@@ -290,9 +290,9 @@ namespace WinFormsApp1
                 }
                 _enterHeld = true;
             }
-            else if(e.KeyCode == Keys.Subtract)
+            else if (e.KeyCode == Keys.Subtract)
             {
-                if(_dashHeld)
+                if (_dashHeld)
                 {
                     e.SuppressKeyPress = true;
                     return;
@@ -339,18 +339,62 @@ namespace WinFormsApp1
                 catch (TaskCanceledException) { }
             }
         }
-        private PointF[] GetTriangle(Rectangle rct)
+        private Point[] GetTriangle(Rectangle rct)
         {
-            return [new PointF(rct.X + rct.Width / 2, rct.Y), new PointF(rct.X, rct.Y + rct.Height), new PointF(rct.X + rct.Width, rct.Y + rct.Height)];
+            return [new Point(rct.X + rct.Width / 2, rct.Y), new Point(rct.X, rct.Y + rct.Height), new Point(rct.X + rct.Width, rct.Y + rct.Height)];
         }
-        private void RotatePolygon()
+        private Rectangle GetPolygonBounds(Point[] polygon)
         {
+            int minX = polygon[0].X;
+            int minY = polygon[0].Y;
+            int maxX = polygon[0].X;
+            int maxY = polygon[0].Y;
+            foreach(var point in polygon)
+            {
+                minX = point.X < minX ? point.X : minX;
+                minY = point.Y < minY ? point.Y : minY;
+                maxX = point.X > maxX ? point.X : maxX;
+                maxY = point.Y > maxY ? point.Y : maxY;
+            }
+            Point topLeft = new Point(minX, maxY);
+            Size size = new Size(maxX - minX,maxY - minY);
+            return new Rectangle(topLeft, size);
+        }
+        private void RotateAndDrawPolygon(Graphics g, PointF[] polygon,Point center,float f)
+        {
+            using(Matrix mtrx = new Matrix())
+            {
+                mtrx.RotateAt(f, center);
+                g.Transform = mtrx;
+                g.DrawPolygon(Pens.Orange, polygon);
+                g.ResetTransform();
+            }
 
         }
         private void tableLayoutPanelMain_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            var polygon = GetTriangle(GetCellBounds(tableLayoutPanelMain, 0, 1));
+            g.DrawPolygon(Pens.Red, polygon);
+            int minX = polygon[0].X;
+            int minY = polygon[0].Y;
+            int maxX = polygon[0].X;
+            int maxY = polygon[0].Y;
+            foreach (var point in polygon)
+            {
+                minX = point.X < minX ? point.X : minX;
+                minY = point.Y < minY ? point.Y : minY;
+                maxX = point.X > maxX ? point.X : maxX;
+                maxY = point.Y > maxY ? point.Y : maxY;
+            }
+            foreach(var pnt in polygon)
+            {
+                g.DrawString($"({pnt.X},{pnt.Y})", SystemFonts.CaptionFont, Brushes.Black, pnt);
+            }
+            Point topLeft = new Point(minX, maxY);
+            Size size = new Size(maxX - minX, maxY - minY);
+            return;
             UpdateNodeRectangles();
             var activeNodes = GetActiveNodesInOrder();
             List<Rectangle> shrinkedAndCenteredSquares = [];
@@ -363,15 +407,15 @@ namespace WinFormsApp1
                     Rectangle centerSquare = GetCenterSquare(shrinked);
                     shrinkedAndCenteredSquares.Add(centerSquare);
                     g.FillEllipse(b, centerSquare);
-                    using (Pen pos = new Pen(Color.Red))
+                    using (Pen p = new Pen(Color.Red))
                     {
-                        g.DrawPolygon(pos, GetTriangle(centerSquare));
+                        var triangle = GetTriangle(centerSquare);
+                        var test = GetPolygonBounds([new Point(0,0),new Point(80,30)]);
+                        g.DrawRectangle(Pens.Brown,test);
                         using (Matrix m = new Matrix())
                         {
-                            m.RotateAt(30f, new PointF(centerSquare.Left + (centerSquare.Width / 2),
-                                                      centerSquare.Top + (centerSquare.Height / 2)));
-                            g.Transform = m;
-                            g.DrawRectangle(Pens.Black, centerSquare);
+                            //g.DrawRectangle(Pens.Black, centerSquare);
+                            g.DrawPolygon(Pens.Orange, triangle);
                             g.ResetTransform();
                         }
                     }
@@ -408,6 +452,11 @@ namespace WinFormsApp1
                 textBoxOutput.Font = GetRelativeFont(125, FontStyle.Regular);
                 labelAlert.Font = GetRelativeFont(80, FontStyle.Italic);
             }
+        }
+
+        private void Main_Resize(object sender, EventArgs e)
+        {
+
         }
     }
 }

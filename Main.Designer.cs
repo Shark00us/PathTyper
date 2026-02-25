@@ -1,4 +1,4 @@
-﻿namespace WinFormsApp1
+﻿namespace PathTyper
 {
     partial class Main
     {
@@ -95,6 +95,7 @@
             KeyDown += MainForm_KeyDown;
             KeyPress += MainForm_KeyPress;
             KeyUp += MainForm_KeyUp;
+            Resize += Main_Resize;
             tableLayoutPanelMain.ResumeLayout(false);
             tableLayoutPanelMain.PerformLayout();
             ResumeLayout(false);

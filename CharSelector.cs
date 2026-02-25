@@ -1,4 +1,4 @@
-﻿namespace WinFormsApp1
+﻿namespace PathTyper
 {
     public partial class CharSelector : Form
     {
