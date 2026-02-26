@@ -1,114 +1,9 @@
 ﻿using System.Drawing.Drawing2D;
-using System.Reflection;
-
+using static PathTyper.DrawingUtil;
 namespace PathTyper
 {
-    public struct Node(Rectangle rct, char c)
-    {
-        public char Char { get; set; } = c;
-        public Rectangle Rectangle { get; set; } = rct;
-    }
     public partial class Main : Form
     {
-        private static void EnableDoubleBuffer(Control control)
-        {
-            if (control != null)
-            {
-                typeof(Control).GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(control, true, null);
-            }
-        }
-        private static Point GetCenterPoint(Rectangle rct)
-        {
-            return new Point(rct.X + (rct.Width / 2), rct.Y + (rct.Height / 2));
-        }
-        private static Rectangle GetCenterSquare(Rectangle rct)
-        {
-            int side = Math.Max(15, Math.Min(rct.Width, rct.Height));
-            int x = rct.X + ((rct.Width - side) / 2);
-            int y = rct.Y + ((rct.Height - side) / 2);
-            return new Rectangle(x, y, side, side);
-        }
-        private static Rectangle ShrinkRectangle(Rectangle r, float percent)
-        {
-            int newWidth = (int)(r.Width * (percent / 100));
-            int newHeight = (int)(r.Height * (percent / 100));
-            int x = r.X + ((r.Width - newWidth) / 2);
-            int y = r.Y + ((r.Height - newHeight) / 2);
-            return new Rectangle(x, y, newWidth, newHeight);
-        }
-        private static Rectangle GetCellBounds(TableLayoutPanel panel, int column, int row)
-        {
-            int[] columnWidths = panel.GetColumnWidths();
-            int[] rowHeights = panel.GetRowHeights();
-            int x = 0;
-            for (int i = 0; i < column; i++)
-            {
-                x += columnWidths[i];
-            }
-
-            int y = 0;
-            for (int i = 0; i < row; i++)
-            {
-                y += rowHeights[i];
-            }
-
-            int width = columnWidths[column];
-            int height = rowHeights[row];
-
-            return new Rectangle(x, y, width, height);
-        }
-        public static Rectangle[] SplitIntoNine(Rectangle rect)
-        {
-            Rectangle[] result = new Rectangle[9];
-
-            int baseWidth = rect.Width / 3;
-            int baseHeight = rect.Height / 3;
-
-            int remainderWidth = rect.Width % 3;
-            int remainderHeight = rect.Height % 3;
-
-            int currentY = rect.Y;
-
-            for (int row = 0; row < 3; row++)
-            {
-                int cellHeight = baseHeight;
-
-                if (row == 2)
-                {
-                    cellHeight += remainderHeight;
-                }
-
-                int currentX = rect.X;
-
-                for (int col = 0; col < 3; col++)
-                {
-                    int cellWidth = baseWidth;
-
-                    if (col == 2)
-                    {
-                        cellWidth += remainderWidth;
-                    }
-
-                    int reversedRow = 2 - row;
-
-                    int index = reversedRow * 3 + col;
-
-                    result[index] = new Rectangle
-                    (
-                        currentX,
-                        currentY,
-                        cellWidth,
-                        cellHeight
-                    );
-
-                    currentX += cellWidth;
-                }
-
-                currentY += cellHeight;
-            }
-
-            return result;
-        }
         private static readonly (char[] CHARS, string[] PATHS)[] Paths =
             [
                 (['0','O'],["98741236","98741236","89632147","87412369","78963214","74123698","47896321","41236987","14789632","12369874","21478963","23698741","32147896","36987412","63214789","69874123"]),
@@ -339,61 +234,16 @@ namespace PathTyper
                 catch (TaskCanceledException) { }
             }
         }
-        private Point[] GetTriangle(Rectangle rct)
-        {
-            return [new Point(rct.X + rct.Width / 2, rct.Y), new Point(rct.X, rct.Y + rct.Height), new Point(rct.X + rct.Width, rct.Y + rct.Height)];
-        }
-        private Rectangle GetPolygonBounds(Point[] polygon)
-        {
-            int minX = polygon[0].X;
-            int minY = polygon[0].Y;
-            int maxX = polygon[0].X;
-            int maxY = polygon[0].Y;
-            foreach(var point in polygon)
-            {
-                minX = point.X < minX ? point.X : minX;
-                minY = point.Y < minY ? point.Y : minY;
-                maxX = point.X > maxX ? point.X : maxX;
-                maxY = point.Y > maxY ? point.Y : maxY;
-            }
-            Point topLeft = new Point(minX, maxY);
-            Size size = new Size(maxX - minX,maxY - minY);
-            return new Rectangle(topLeft, size);
-        }
-        private void RotateAndDrawPolygon(Graphics g, PointF[] polygon,Point center,float f)
-        {
-            using(Matrix mtrx = new Matrix())
-            {
-                mtrx.RotateAt(f, center);
-                g.Transform = mtrx;
-                g.DrawPolygon(Pens.Orange, polygon);
-                g.ResetTransform();
-            }
-
-        }
+        int degree = 0;
         private void tableLayoutPanelMain_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var polygon = GetTriangle(GetCellBounds(tableLayoutPanelMain, 0, 1));
-            g.DrawPolygon(Pens.Red, polygon);
-            int minX = polygon[0].X;
-            int minY = polygon[0].Y;
-            int maxX = polygon[0].X;
-            int maxY = polygon[0].Y;
-            foreach (var point in polygon)
-            {
-                minX = point.X < minX ? point.X : minX;
-                minY = point.Y < minY ? point.Y : minY;
-                maxX = point.X > maxX ? point.X : maxX;
-                maxY = point.Y > maxY ? point.Y : maxY;
-            }
-            foreach(var pnt in polygon)
-            {
-                g.DrawString($"({pnt.X},{pnt.Y})", SystemFonts.CaptionFont, Brushes.Black, pnt);
-            }
-            Point topLeft = new Point(minX, maxY);
-            Size size = new Size(maxX - minX, maxY - minY);
+            Rectangle test = new(150, 150, 300, 300);
+            g.FillRectangle(Brushes.Orange, test);
+            g.DrawEllipse(Pens.RoyalBlue,test);
+            g.FillPolygon(Brushes.Gold, GetLargesTinscribedEquilateralTriangle(GetLargestInscribedSquare(test)));
+            g.FillPolygon(Brushes.Silver, FindLargestTriangleInEllipse(test));
             return;
             UpdateNodeRectangles();
             var activeNodes = GetActiveNodesInOrder();
@@ -407,23 +257,10 @@ namespace PathTyper
                     Rectangle centerSquare = GetCenterSquare(shrinked);
                     shrinkedAndCenteredSquares.Add(centerSquare);
                     g.FillEllipse(b, centerSquare);
-                    using (Pen p = new Pen(Color.Red))
-                    {
-                        var triangle = GetTriangle(centerSquare);
-                        var test = GetPolygonBounds([new Point(0,0),new Point(80,30)]);
-                        g.DrawRectangle(Pens.Brown,test);
-                        using (Matrix m = new Matrix())
-                        {
-                            //g.DrawRectangle(Pens.Black, centerSquare);
-                            g.DrawPolygon(Pens.Orange, triangle);
-                            g.ResetTransform();
-                        }
-                    }
                 }
             }
             if (_input != null && _input.Length > 1)
             {
-
                 for (int i = 0; i < activeNodes.Length - 1; i++)
                 {
                     Random rnd = new Random();
@@ -435,7 +272,6 @@ namespace PathTyper
                     }
                 }
             }
-            return;
             using (var b = new SolidBrush(Color.Black))
             {
                 int count = 1;
